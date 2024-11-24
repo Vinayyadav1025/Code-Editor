@@ -1,0 +1,16 @@
+{
+  "name": "userprofile-service",
+  "version": "1.0.0",
+  "description": "Service to manage user profiles.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
+    "mongoose": "^7.0.1",
+    "body-parser": "^1.20.2"
+  }
+}
