@@ -1,15 +1,16 @@
-import express from 'express';
-import { addQuestion, getAllQuestions, getQuestionById } from '../controllers/questionController.js';
+// src/routes/questionRoutes.js
+import express from 'express';  // Import express
+import { addQuestion, getQuestions, getQuestionById } from '../controllers/questionController.js';
 
-const router = express.Router();
+const router = express.Router();  // Create the router instance
 
 // Route to add a new question
-router.post('/', addQuestion);
+router.post('/add', addQuestion);
 
-// Route to get all questions
-router.get('/', getAllQuestions);
+// Route to get a filtered list of questions
+router.get('/', getQuestions);
 
-// Route to get a question by ID
+// Route to get a specific question by ID
 router.get('/:id', getQuestionById);
 
-export default router;
+export default router;  // Export the router

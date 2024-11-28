@@ -1,0 +1,47 @@
+.problems {
+    display: flex;
+    height: 100%;
+  }
+  
+  .filter-section {
+    width: 25%;
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+  }
+  
+  .filter-section h3 {
+    margin-bottom: 10px;
+  }
+  
+  .filter-section div {
+    margin-bottom: 10px;
+  }
+  
+  .filter-section label {
+    margin-left: 8px;
+  }
+  
+  .question-list {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #ffffff;
+  }
+  
+  .question-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+  }
+  
+  .question-item h4 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+  }
+  
+  .question-item p {
+    margin: 5px 0 0;
+    color: #666;
+  }
+  

@@ -1,0 +1,80 @@
+/* Container for the entire layout */
+.resizable-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Left Section - Question Details */
+.left-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: inset -1px 0px 0px rgba(0, 0, 0, 0.1);
+  transition: width 0.2s;
+}
+
+/* Left Section Heading */
+.left-section h3 {
+  margin-bottom: 10px;
+}
+
+/* Tag styling */
+.left-section .tags {
+  margin-bottom: 20px;
+}
+
+.left-section .tag {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  margin-right: 5px;
+  font-size: 0.9rem;
+}
+
+/* Example styling */
+.left-section .example {
+  margin-bottom: 15px;
+}
+
+/* Resizable Divider */
+.divider {
+  width: 5px;
+  background-color: #ccc;
+  cursor: ew-resize;
+  position: relative;
+  z-index: 10;
+}
+
+/* Right Section - Code Editor */
+.right-section {
+  background-color: #e9ecef;
+  overflow-y: auto;
+  transition: width 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .resizable-container {
+    flex-direction: column;
+  }
+
+  .divider {
+    height: 5px;
+    width: 100%;
+    cursor: ns-resize;
+  }
+
+  .left-section,
+  .right-section {
+    width: 100% !important;
+    height: 50%;
+  }
+}

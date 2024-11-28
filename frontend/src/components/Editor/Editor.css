@@ -1,0 +1,74 @@
+/* Wrapper for the editor */
+.editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  /* border:2px solid red; */
+}
+
+/* Dropdown Header */
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+}
+
+.editor-header label {
+  /* margin-right: 10px; */
+  font-size: 16px;
+}
+
+.editor-header select {
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #333;
+  margin-right: 10px;
+}
+
+/* Editor Container */
+.editor-container {
+  flex: 1; /* Takes all remaining space */
+  overflow: hidden; /* Ensures the editor doesn't spill out */
+}
+
+/* Footer Buttons */
+.editor-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+}
+
+.action-button {
+  padding: 7px 15px;
+  font-size: 14px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.action-button.compile {
+  background-color: #007bff;
+}
+
+.action-button.run {
+  background-color: #28a745;
+}
+
+.action-button.submit {
+  background-color: #ffc107;
+}
+
+.action-button:hover {
+  opacity: 0.9;
+}
