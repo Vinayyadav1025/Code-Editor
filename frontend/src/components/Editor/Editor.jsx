@@ -1,15 +1,22 @@
-import React, { useState } from "react";
-import MonacoEditor from "@monaco-editor/react";
-import "./Editor.css";
+import React, { useState, useEffect } from 'react';
+import MonacoEditor from '@monaco-editor/react';
+import CompileWindow from '../CompileWindow/CompileWindow';
+import './Editor.css';
 
-const Editor = () => {
-  const [language, setLanguage] = useState("cpp");
-  const [theme, setTheme] = useState("vs-dark");
-  const [code, setCode] = useState("// Write your code here...");
-  const [inputData, setInputData] = useState(""); // Added inputData state to capture input
+const Editor = ({ question }) => {
+  const [language, setLanguage] = useState('cpp');
+  const [theme, setTheme] = useState('vs-dark');
+  const [code, setCode] = useState('');
+  const [inputData, setInputData] = useState(''); // Set default to empty
+  const [isCompileWindowVisible, setCompileWindowVisible] = useState(false);
+  const [compileOutput, setCompileOutput] = useState('');
+  const [compileError, setCompileError] = useState('');
+  const [isCustomInputVisible, setCustomInputVisible] = useState(false);
 
   const handleLanguageChange = (event) => {
-    setLanguage(event.target.value);
+    const selectedLanguage = event.target.value;
+    setLanguage(selectedLanguage);
+    setCode(getDefaultCode(selectedLanguage));
   };
 
   const handleThemeChange = (event) => {
@@ -17,51 +24,85 @@ const Editor = () => {
   };
 
   const handleInputChange = (event) => {
-    setInputData(event.target.value); // Handle input data change
+    setInputData(event.target.value);
   };
 
-  const handleRun = async () => {
-    try {
-      
-      const response = await fetch("http://host.docker.internal:5000/execute", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          code: code, // Use the code written by the user
-          input_data: inputData,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log(data.stdout); // Log the output to the browser console
-      // Optionally display the output in the UI
-      alert(`Output: ${data.stdout}`);
-    } catch (error) {
-      console.error("Error:", error);
+  const handleCodeChange = (newCode) => {
+    setCode(newCode);
+  };
+
+  const getDefaultCode = (language) => {
+    switch (language) {
+      case 'cpp':
+        return `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, CPP!" << endl;\n    return 0;\n}`;
+      case 'java':
+        return `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}`;
+      case 'python':
+        return `print("Hello, Python!")`;
+      case 'javascript':
+        return `console.log("Hello, JS!");`;
+      default:
+        return '// Write your code here...';
     }
   };
-  
 
-  const handleSubmit = () => {
-    alert("Submit button clicked!");
+  const handleCompile  = async () => {
+    
+      // When custom input is visible, run with the entered input
+      try {
+        const response = await fetch('http://localhost:5000/execute', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            language: language,
+            code: code,
+            input_data: inputData || '', // Use custom input
+          }),
+        });
+
+        const data = await response.json();
+        setCompileOutput(data.stdout);
+        console.log(data.stdout||"No output");
+        
+        setCompileError(data.stderr || '');
+        setCompileWindowVisible(true);
+      } catch (error) {
+        setCompileError('Compilation failed. Please check the code and try again.');
+        setCompileOutput('');
+        setCompileWindowVisible(true);
+      }
+    
   };
+
+  const handleCustomInputClick = () => {
+    setCompileWindowVisible(true); // Ensure the compile window stays visible
+  };
+
+
+  // const handleCompile = async () => {
+  //   alert('Compile and run button clicked');
+  // }
+
+  const handleSubmit = async () => {
+    alert('Submit button clicked');
+  }
+  
+  const handleCloseCompileWindow = () => {
+    setCompileWindowVisible(false);
+  };
+
+  useEffect(() => {
+    setCode(getDefaultCode(language));
+  }, [language]);
 
   return (
     <div className="editor-wrapper">
       <div className="editor-header">
         <div>
           <label htmlFor="language-select">Language:</label>
-          <select
-            id="language-select"
-            value={language}
-            onChange={handleLanguageChange}
-          >
+          <select id="language-select" value={language} onChange={handleLanguageChange}>
             <option value="cpp">CPP</option>
             <option value="java">Java</option>
             <option value="python">Python</option>
@@ -84,27 +125,38 @@ const Editor = () => {
           language={language}
           theme={theme}
           value={code}
-          onChange={(value) => setCode(value)}
+          onChange={handleCodeChange}
           options={{
             fontSize: 14,
+            lineNumbers: 'on',
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
           }}
         />
       </div>
 
       <div className="editor-footer">
-        <input
-          type="text"
-          placeholder="Enter input data"
-          value={inputData}
-          onChange={handleInputChange}
-        />
-        <button onClick={handleRun} className="action-button run">
-          Run
+        <button onClick={handleCustomInputClick} className="action-button custom-input">
+          Custom Input
         </button>
-        <button onClick={handleSubmit} className="action-button submit">
+        <button onClick={handleCompile} className="action-button run">
+          Compile & Run
+        </button>
+        <button className="action-button submit" onClick={handleSubmit}>
           Submit
         </button>
       </div>
+
+      <CompileWindow
+        isVisible={isCompileWindowVisible}
+        onClose={handleCloseCompileWindow}
+        output={compileOutput}
+        error={compileError}
+        inputData={inputData}
+        onInputChange={handleInputChange}
+        isCustomInputVisible={isCustomInputVisible}
+        onRun={handleCompile}
+      />
     </div>
   );
 };

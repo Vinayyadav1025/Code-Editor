@@ -1,80 +1,50 @@
-/* Container for the entire layout */
+/* Container for the left and right sections */
 .resizable-container {
   display: flex;
-  width: 100%;
   height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
-/* Left Section - Question Details */
+/* Left Section Styling */
 .left-section {
-  background-color: #f8f9fa;
+  background-color: #f4f4f4;
   padding: 20px;
-  overflow-y: auto;
-  box-shadow: inset -1px 0px 0px rgba(0, 0, 0, 0.1);
-  transition: width 0.2s;
+  overflow: auto;
+  transition: width 0.2s ease; /* Add transition for smooth resizing */
+  flex: 1;
 }
 
-/* Left Section Heading */
-.left-section h3 {
-  margin-bottom: 10px;
+/* Right Section Styling */
+.right-section {
+  background-color: #fff;
+  overflow: auto;
+  transition: width 0.2s ease; /* Add transition for smooth resizing */
+  flex: 2;
 }
 
-/* Tag styling */
-.left-section .tags {
-  margin-bottom: 20px;
-}
-
-.left-section .tag {
-  display: inline-block;
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
-  margin-right: 5px;
-  font-size: 0.9rem;
-}
-
-/* Example styling */
-.left-section .example {
-  margin-bottom: 15px;
-}
-
-/* Resizable Divider */
+/* Divider between sections */
 .divider {
   width: 5px;
-  background-color: #ccc;
+  background-color: #000;
   cursor: ew-resize;
-  position: relative;
-  z-index: 10;
+  height: 100%;
 }
 
-/* Right Section - Code Editor */
-.right-section {
-  background-color: #e9ecef;
-  overflow-y: auto;
-  transition: width 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-/* Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .resizable-container {
     flex-direction: column;
+  }
+
+  .left-section, .right-section {
+    width: 100%;
+    flex: unset;
   }
 
   .divider {
     height: 5px;
     width: 100%;
     cursor: ns-resize;
-  }
-
-  .left-section,
-  .right-section {
-    width: 100% !important;
-    height: 50%;
   }
 }
