@@ -90,13 +90,13 @@ const QuestionDetail = () => {
       </div>
 
       {/* Compile Window */}
-      <CompileWindow
+      {/* <CompileWindow
         isVisible={isCompileWindowVisible}
         onClose={() => setCompileWindowVisible(false)}
         output={compileOutput}
         error={compileError}
         leftWidth={leftWidth}
-      />
+      /> */}
     </div>
   );
 };

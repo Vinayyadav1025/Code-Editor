@@ -36,7 +36,7 @@ const CompileWindow = ({
           )}
           {/* Output Section */}
           <div>
-            <h4>Output:</h4>
+            <h4>Your Output:</h4>
             <pre className="output">{output || 'No output'}</pre>
           </div>
           {/* Error Section */}
