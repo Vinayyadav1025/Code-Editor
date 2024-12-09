@@ -7,7 +7,7 @@ const Editor = ({ question }) => {
   const [language, setLanguage] = useState('cpp');
   const [theme, setTheme] = useState('vs-dark');
   const [code, setCode] = useState('');
-  const [inputData, setInputData] = useState(''); // Set default to empty
+  const [inputData, setInputData] = useState(question.examples[1].input); // Set default to empty
   const [isCompileWindowVisible, setCompileWindowVisible] = useState(false);
   const [compileOutput, setCompileOutput] = useState('');
   const [compileError, setCompileError] = useState('');

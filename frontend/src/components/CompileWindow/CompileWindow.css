@@ -1,7 +1,7 @@
 /* Overlay background for CompileWindow */
 .compile-window-overlay {
   position: fixed;
-  top: 0;
+  top: 5px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -59,7 +59,7 @@
   flex-direction: column;
   gap: 15px; /* Space between sections */
   overflow-y: auto;
-  height: calc(100% - 50px); /* Adjust for header height */
+  height: calc(100% - 77px); /* Adjust for header height */
 }
 
 /* Input Section */
@@ -70,7 +70,7 @@
 }
 
 .input-section textarea {
-  width: 100%;
+  width: 97%;
   height: 100px; /* Fixed height for input */
   resize: none;
   font-family: monospace;
