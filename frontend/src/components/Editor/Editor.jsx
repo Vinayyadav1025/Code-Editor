@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, act } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import CompileWindow from '../CompileWindow/CompileWindow';
 import './Editor.css';
@@ -11,8 +11,13 @@ const Editor = ({ question }) => {
   const [isCompileWindowVisible, setCompileWindowVisible] = useState(false);
   const [compileOutput, setCompileOutput] = useState('');
   const [compileError, setCompileError] = useState('');
+  const [compileExpectedOutput, setCompileExpectedOutput] = useState('');
+  const [compileExpectedError, setCompileExpectedError] = useState('');
   const [isCustomInputVisible, setCustomInputVisible] = useState(false);
 
+  
+  //console.log(actualCode);
+  
   const handleLanguageChange = (event) => {
     const selectedLanguage = event.target.value;
     setLanguage(selectedLanguage);
@@ -34,7 +39,7 @@ const Editor = ({ question }) => {
   const getDefaultCode = (language) => {
     switch (language) {
       case 'cpp':
-        return `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, CPP!" << endl;\n    return 0;\n}`;
+        return question.customCode;
       case 'java':
         return `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}`;
       case 'python':
@@ -46,36 +51,57 @@ const Editor = ({ question }) => {
     }
   };
 
-  const handleCompile  = async () => {
-    
-      // When custom input is visible, run with the entered input
-      try {
-        const response = await fetch('http://localhost:5000/execute', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            language: language,
-            code: code,
-            input_data: inputData || '', // Use custom input
-          }),
-        });
-
-        const data = await response.json();
-        setCompileOutput(data.stdout);
-        console.log(data.stdout||"No output");
+  const handleCompile = async () => {
+    const actualCode = (() => {
+      const customCodeWithFunction = question.customCode.replace(
+        '//Write your code here',
+        question.functionCode
+      );
+      return customCodeWithFunction;
+    })();
+  
+    try {
+      const response = await fetch('http://localhost:5000/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: language,
+          code: code,
+          actualCode: actualCode,
+          input_data: inputData || '', // Use custom input
+        }),
+      });
+  
+      const data = await response.json();
+      //console.log(data);
+      
+      if (response.ok) {
+        setCompileOutput(data.codeResponse.stdout);
+        //console.log(data.codeResponse.stdout);        
+        setCompileError(data.codeResponse.stderr);
+        //console.log(data.codeResponse.stderr);
         
-        setCompileError(data.stderr || '');
-        setCompileWindowVisible(true);
-      } catch (error) {
-        setCompileError('Compilation failed. Please check the code and try again.');
+        setCompileExpectedOutput(data.actualCodeResponse.stdout);
+        //console.log(data.actualCodeResponse.stdout);
+        
+        setCompileExpectedError(data.actualCodeResponse.stderr);
+        //console.log(data.actualCodeResponse.stderr);
+        
+      } else {
+        setCompileError(data.error || 'Compilation failed. Please check the code and try again.');
         setCompileOutput('');
-        setCompileWindowVisible(true);
       }
-    
+  
+      setCompileWindowVisible(true);
+    } catch (error) {
+      setCompileError('Compilation failed. Please check the code and try again.');
+      setCompileOutput('');
+      setCompileWindowVisible(true);
+    }
   };
-
+  
   const handleCustomInputClick = () => {
     setCompileWindowVisible(true); // Ensure the compile window stays visible
   };
@@ -150,8 +176,10 @@ const Editor = ({ question }) => {
       <CompileWindow
         isVisible={isCompileWindowVisible}
         onClose={handleCloseCompileWindow}
-        output={compileOutput}
-        error={compileError}
+        output1={compileOutput}
+        error1={compileError}
+        output2={compileExpectedOutput}
+        error2={compileExpectedError}
         inputData={inputData}
         onInputChange={handleInputChange}
         isCustomInputVisible={isCustomInputVisible}

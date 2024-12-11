@@ -15,108 +15,124 @@ app.use(
 
 app.use(express.json()); // Parse incoming JSON data
 
-// Handle POST request to execute code
-app.post("/execute", (req, res) => {
-  let responseSent = false; // Flag to track if a response has been sent
+const tempFiles = {
+  python: "temp_script.py",
+  javascript: "temp_script.js",
+  c: "temp_script.c",
+  cpp: "temp_script.cpp",
+  java: "TempScript.java",
+};
 
+const commands = {
+  python: `python3 ${tempFiles.python}`,
+  javascript: `node ${tempFiles.javascript}`,
+  c: `gcc ${tempFiles.c} -o temp_executable && ./temp_executable`,
+  cpp: `g++ ${tempFiles.cpp} -o temp_executable && ./temp_executable`,
+  java: `javac ${tempFiles.java} && java TempScript`,
+};
+
+app.post("/execute", async (req, res) => {
   try {
-    let { language, code, input_data } = req.body;
-    console.log("Input Data:", input_data);
-    console.log("Code:", code);
+    const { language, code, actualCode, input_data } = req.body;
 
-    const tempFiles = {
-      python: "temp_script.py",
-      javascript: "temp_script.js",
-      c: "temp_script.c",
-      cpp: "temp_script.cpp",
-      java: "TempScript.java",
+    const executeCode = async (codeToExecute, language, inputData) => {
+      const tempFile = tempFiles[language];
+      return new Promise((resolve, reject) => {
+        try {
+          // Write code to temp file
+          fs.writeFileSync(tempFile, codeToExecute);
+
+          // Verify the temp file
+          if (!fs.existsSync(tempFile)) {
+            return reject({ errorType: "FileCreationError", message: "Failed to create temporary file" });
+          }
+
+          // Execute the code
+          const process = exec(commands[language], { encoding: "utf8" });
+
+          let output = "";
+          let errorOutput = "";
+
+          process.stdin.write(inputData + "\n");
+          process.stdin.end();
+
+          process.stdout.on("data", (data) => {
+            output += data;
+          });
+
+          process.stderr.on("data", (data) => {
+            errorOutput += data;
+          });
+
+          process.on("exit", (code) => {
+            cleanUpTempFiles(language);
+            if (code === 0) {
+              resolve({ stdout: output.trim(), stderr: errorOutput.trim() });
+            } else {
+              const errorType = identifyErrorType(language, errorOutput);
+              reject({ stdout: output.trim(), stderr: errorOutput.trim(), errorType });
+            }
+          });
+
+          const timeout = setTimeout(() => {
+            process.kill();
+            reject({ stdout: output.trim(), stderr: errorOutput.trim(), errorType: "TimeoutError" });
+          }, 5000);
+
+          process.on("close", () => clearTimeout(timeout));
+        } catch (err) {
+          cleanUpTempFiles(language);
+          reject({ stdout: "", stderr: "Unexpected error during execution", errorType: "UnknownError" });
+        }
+      });
     };
 
-    const commands = {
-      python: `python3 ${tempFiles.python}`,
-      javascript: `node ${tempFiles.javascript}`,
-      c: `gcc ${tempFiles.c} -o temp_executable && ./temp_executable`,
-      cpp: `g++ ${tempFiles.cpp} -o temp_executable && ./temp_executable`,
-      java: `javac ${tempFiles.java} && java TempScript`,
+    const cleanUpTempFiles = (language) => {
+      try {
+        fs.unlinkSync(tempFiles[language]);
+        if (["c", "cpp"].includes(language)) {
+          if (fs.existsSync("temp_executable")) fs.unlinkSync("temp_executable");
+        } else if (language === "java") {
+          if (fs.existsSync("TempScript.class")) fs.unlinkSync("TempScript.class");
+        }
+      } catch (err) {
+        console.error("Error during cleanup:", err);
+      }
     };
 
-    if (!commands[language]) {
-      return res.status(400).json({ error: "Unsupported programming language" });
+    const identifyErrorType = (language, errorOutput) => {
+      if (errorOutput.includes("syntax")) return "SyntaxError";
+      if (errorOutput.includes("compilation")) return "CompilationError";
+      if (errorOutput.includes("runtime")) return "RuntimeError";
+      return "UnknownError";
+    };
+
+    const responses = {};
+
+    try {
+      responses.codeResponse = await executeCode(code, language, input_data);
+    } catch (err) {
+      console.log(err);
+      
+      responses.codeResponse = {stdout:err.stdout, stderr:err.stderr};
     }
 
-    const tempFile = tempFiles[language];
-    fs.writeFileSync(tempFile, code); // Write the code to a temp file
-    console.log(`Temporary file created: ${tempFile}`);
-
-    // Ensure file creation
-    if (!fs.existsSync(tempFile)) {
-      return res.status(500).json({ error: "Failed to create temporary file" });
-    }
-
-    // Execute the script/compiled program
-    console.log("Executing command:", commands[language]);
-    const process = exec(commands[language], { encoding: 'utf8' });
-
-    let output = "";
-    let errorOutput = "";
-
-    // Pipe input_data into the process using stdin
-    process.stdin.write(input_data + '\n');
-    process.stdin.end();
-
-    // Capture stdout and stderr and print them to the console
-    process.stdout.on("data", (data) => {
-      console.log("stdout:", data); // Log output to the console
-      output += data; // Collect standard output
-    });
-
-    process.stderr.on("data", (data) => {
-      console.error("stderr:", data); // Log error output to the console
-      errorOutput += data; // Collect error output
-    });
-
-    // Use exit event instead of close
-    process.on("exit", (code) => {
-      if (responseSent) return; // Prevent multiple responses
-      console.log("Process exited with code:", code);
-      cleanUpTempFiles(language);
-      if (code === 0) {
-        console.log("Execution successful!");
-        res.status(200).json({ stdout: output.trim(), stderr: errorOutput.trim() });
-      } else {
-        console.log("Execution failed!");
-        res.status(500).json({ error: errorOutput.trim() || "Execution failed" });
-      }
-      responseSent = true; // Mark that a response has been sent
-    });
-
-    // Add timeout for debugging to check if the process hangs
-    const timeout = setTimeout(() => {
-      if (responseSent) return; // Prevent multiple responses
-      console.error("Process timed out");
-      process.kill(); // Forcefully kill the process
-      res.status(500).json({ error: "Execution timed out" });
-      responseSent = true; // Mark that a response has been sent
-    }, 5000); // Timeout after 5 seconds
-
-    // Clean up files after process exits
-    function cleanUpTempFiles(language) {
-      fs.unlinkSync(tempFile);
-      if (language === "c" || language === "cpp") {
-        if (fs.existsSync("temp_executable")) fs.unlinkSync("temp_executable");
-      } else if (language === "java") {
-        if (fs.existsSync("TempScript.class")) fs.unlinkSync("TempScript.class");
+    if (actualCode) {
+      try {
+        responses.actualCodeResponse = await executeCode(actualCode, language, input_data);
+      } catch (err) {
+        responses.actualCodeResponse = { errorType: err.errorType || "UnknownError", message: err.stderr || "Execution failed" };
       }
     }
 
+    res.status(200).json(responses);
   } catch (e) {
     console.error("Error processing the request:", e);
-    if (!responseSent) {
-      res.status(500).json({ error: "Internal Server Error" });
-      responseSent = true; // Mark that a response has been sent
-    }
+    res.status(500).json({ errorType: "ServerError", message: "Internal Server Error" });
   }
 });
+
+
 
 // Start server on port 5000
 app.listen(5000, () => {

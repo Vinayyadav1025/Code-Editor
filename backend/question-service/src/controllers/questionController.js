@@ -2,7 +2,7 @@
 import Question from '../models/questionModel.js';
 // Add a new question
 export const addQuestion = async (req, res) => {
-    const { topic, topicTag, complexity, shortHeading, shortDescription, detailedDescription, examples, constraints } = req.body;
+    const { topic, topicTag, complexity, shortHeading, shortDescription, detailedDescription, examples, customCode, functionCode, testCases, constraints } = req.body;
 
     try {
         const newQuestion = new Question({
@@ -13,6 +13,9 @@ export const addQuestion = async (req, res) => {
             shortDescription,
             detailedDescription,
             examples,
+            customCode,
+            functionCode,
+            testCases,
             constraints,
         });
 

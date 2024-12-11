@@ -37,6 +37,26 @@ const questionSchema = new mongoose.Schema({
             required: true,
         },
     }],
+    customCode:{
+        type: String,
+        required: true,
+    },
+    functionCode:{
+        type: String,
+        required: true,
+    },
+    testCases:[
+        {
+            input: {
+                type: String,
+                required: true,
+            },
+            output: {
+                type: String,
+                required: true,
+            },
+        }
+    ],
     constraints: {
         type: String,  // E.g., 'Array length is between 1 and 10^5'
     },
