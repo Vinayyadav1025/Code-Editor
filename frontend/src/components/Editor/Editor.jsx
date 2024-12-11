@@ -2,6 +2,7 @@ import React, { useState, useEffect, act } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import CompileWindow from '../CompileWindow/CompileWindow';
 import './Editor.css';
+import SubmitWindow from '../SubmitWindow/SubmitWindow';
 
 const Editor = ({ question }) => {
   const [language, setLanguage] = useState('cpp');
@@ -14,8 +15,11 @@ const Editor = ({ question }) => {
   const [compileExpectedOutput, setCompileExpectedOutput] = useState('');
   const [compileExpectedError, setCompileExpectedError] = useState('');
   const [isCustomInputVisible, setCustomInputVisible] = useState(false);
+  const [isSubmitWindowVisible, setSubmitWindowVisible] = useState(false);
+  const [status, setStatus] = useState('failed');
+  const [passedTestCases, setPassedTestCases] = useState(0);
+  const [passed, setPassed] = useState(false);
 
-  
   //console.log(actualCode);
   
   const handleLanguageChange = (event) => {
@@ -112,12 +116,48 @@ const Editor = ({ question }) => {
   // }
 
   const handleSubmit = async () => {
-    alert('Submit button clicked');
+    
+    try{
+      const response = await fetch('http://localhost:5000/submit', {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+        },
+        body:JSON.stringify({
+          language:language,
+          code:code,
+          testCases:question.testCases
+        }),
+      });
+
+      const data = await response.json();
+
+      if(response.ok){
+        setStatus(data[0].status);
+        setPassedTestCases(data[1].passedTestCases);
+        setPassed(data[2].passed);
+        setSubmitWindowVisible(true); // Show SubmitWindow on successful submission
+      }
+      else{
+          console.log(data.error || 'Submission failed. Please check the code and try again.');
+          
+      }
+
+    }
+    catch(error){
+      console.error('Error:',error);
+    }
+
   }
   
   const handleCloseCompileWindow = () => {
     setCompileWindowVisible(false);
   };
+
+  const handleCloseSubmitWindow = () => {
+    setSubmitWindowVisible(false); // Hide SubmitWindow
+  };
+  
 
   useEffect(() => {
     setCode(getDefaultCode(language));
@@ -185,6 +225,15 @@ const Editor = ({ question }) => {
         isCustomInputVisible={isCustomInputVisible}
         onRun={handleCompile}
       />
+      <SubmitWindow
+        isVisible={isSubmitWindowVisible} // Change from isSubmitWindowVisible to isVisible if not already matching prop
+        onClose={handleCloseSubmitWindow}
+        status={status}
+        passedTestCases={passedTestCases}
+        passed={passed}
+      />
+
+
     </div>
   );
 };
