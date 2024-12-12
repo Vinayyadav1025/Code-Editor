@@ -148,7 +148,7 @@ app.post("/submit",async (req,res)=>{
         }
         else{
           
-          responses.push({ status:input+output+ response});
+          responses.push({ status:{input,output, response}});
           break;
         }
       } catch (err) {
