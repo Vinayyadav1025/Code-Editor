@@ -1,11 +1,14 @@
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0px 20px;
-    background-color: #282c34;
-    color: white;
-  }
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 20px;
+  background-color: #282c34;
+  color: white; 
+  gap: 30rem;  
+}
+
   
   .nav-links {
     list-style: none;

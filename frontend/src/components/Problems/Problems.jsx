@@ -86,24 +86,29 @@ const Problems = () => {
       <div className="filter-section">
         <h3>Topics</h3>
         {topics.map((topic) => (
-          <div key={topic}>
-            <input
-              type="checkbox"
-              id={`topic-${topic}`}
-              onChange={() => handleTopicChange(topic)}
-            />
-            <label htmlFor={`topic-${topic}`}>{topic}</label>
-          </div>
+          <div key={topic} className="topic-container">
+                <div className="topic-name-conatiner"><label htmlFor={`topic-${topic}`} className="topic-label">{topic}</label></div>
+                <div className='topic-checkbox-container'>
+                  <input
+                    type="checkbox"
+                    id={`topic-${topic}`}
+                    onChange={() => handleTopicChange(topic)}
+                    className="topic-checkbox"
+                  />
+                </div>
+            </div>
         ))}
         <h3>Complexity</h3>
         {complexities.map((complexity) => (
-          <div key={complexity}>
-            <input
-              type="checkbox"
-              id={`complexity-${complexity}`}
-              onChange={() => handleComplexityChange(complexity)}
-            />
-            <label htmlFor={`complexity-${complexity}`}>{complexity}</label>
+          <div key={complexity} className='complexity-container'>
+              <div className="complexity-label"><label htmlFor={`complexity-${complexity}`}>{complexity}</label></div>
+              <div className="complexity-checkbox">
+                <input
+                  type="checkbox"
+                  id={`complexity-${complexity}`}
+                  onChange={() => handleComplexityChange(complexity)}
+                />
+            </div>
           </div>
         ))}
       </div>
