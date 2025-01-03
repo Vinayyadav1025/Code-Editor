@@ -14,7 +14,8 @@ const CompileWindow = ({
   onRun,
 }) => {
   if (!isVisible) return null;
-
+  console.log(output2);
+  
   return (
     <div className="compile-window-overlay">
       <div className="compile-window">

@@ -133,7 +133,7 @@ app.post("/execute", async (req, res) => {
   }
 });
 
-app.post("/submit",async (req,res)=>{
+app.post("/submit",async (req,res)=>{ 
   try {
     let passedTestCases = 0;
     const { language, code, testCases } = req.body;
@@ -160,7 +160,7 @@ app.post("/submit",async (req,res)=>{
     if(responses.length === 0){
       responses.push({status:"All testcases passed"},{passedTestCases},{passed:true});
     }
-    else{
+    else{ 
       responses.push({passedTestCases},{passed:false});
     }
     //console.log(responses);

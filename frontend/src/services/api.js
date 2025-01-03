@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5002/api'; // Update with your backend base URL
+const BASE_URL = 'http://localhost:5002/api'; // Backend base URL
 
 export const fetchQuestions = async (filters = {}) => {
   try {

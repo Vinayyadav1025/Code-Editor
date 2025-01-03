@@ -65,6 +65,8 @@ const Editor = ({ question }) => {
     })();
   
     try {
+      console.log(actualCode);
+      
       const response = await fetch('http://localhost:5000/execute', {
         method: 'POST',
         headers: {
@@ -89,6 +91,7 @@ const Editor = ({ question }) => {
         
         setCompileExpectedOutput(data.actualCodeResponse.stdout);
         //console.log(data.actualCodeResponse.stdout);
+        console.log(data);
         
         setCompileExpectedError(data.actualCodeResponse.stderr);
         //console.log(data.actualCodeResponse.stderr);

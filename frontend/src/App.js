@@ -16,6 +16,8 @@ function App() {
           <Route path="/problems" element={<Problems />} />
           <Route path="/contact" element={<div className="page">Contact Us</div>} />
           <Route path="/questions/:questionId" element={<DetailedQuestion />} />
+          <Route path="/signin" element={<div className="page">Sign In</div>} />
+          
         </Routes>
       </div>
     </Router>

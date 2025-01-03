@@ -18,7 +18,7 @@ dotenv.config({
 // Initialize Express app
 const app = express();
 
-// Middleware
+// Middleware for find complixity 
 app.use(
   cors({
     origin: 'http://localhost:3000', // explicitly allow only frontend from localhost:3000
